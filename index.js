@@ -10,7 +10,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const SECURT = process.env.jwt_secret;
 const rn = require("random-number");
-const client_url = "http://localhost:3000"
+const client_url = "https://signin-reset.netlify.app"
 
 const options = {
   min: 1000,
