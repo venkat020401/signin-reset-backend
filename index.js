@@ -10,7 +10,6 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const SECURT = process.env.jwt_secret;
 const rn = require("random-number");
-const client_url = "https://signin-reset.netlify.app"
 
 const options = {
   min: 1000,
@@ -22,7 +21,7 @@ const options = {
 app.use(express.json());
 app.use(
   cors({
-    origin: client_url,
+    origin:"https://signin-reset.netlify.app",
   })
 );
 
@@ -113,7 +112,7 @@ app.post("/sendpasswordlink", async (req, res) => {
           from: process.env.EMAIL,
           to: req.body.email,
           subject: "Sending Email For password Reset",
-          html: `<b>Please <a href='${client_url}/verify-user/${setrandomnum.value._id}/${randomnum}'> Click here</a> to reset your password</b>`,
+          html: `<b>Please <a href='https://signin-reset.netlify.app/verify-user/${setrandomnum.value._id}/${randomnum}'> Click here</a> to reset your password</b>`,
         };
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
