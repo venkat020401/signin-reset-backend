@@ -21,7 +21,7 @@ const options = {
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://auth2512.netlify.app",
   })
 );
 
@@ -114,7 +114,7 @@ app.post("/sendpasswordlink", async (req, res) => {
           from: process.env.EMAIL,
           to: req.body.email,
           subject: "Sending Email For password Reset",
-          html: `Please <a href='http://localhost:3000/verify-user/${setrandomnum.value._id}/${randomnum}'> Click here</a> to rest your password`
+          html: `Please <a href='https://auth2512.netlify.app/verify-user/${setrandomnum.value._id}/${randomnum}'> Click here</a> to rest your password`
         }
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
