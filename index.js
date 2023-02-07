@@ -21,33 +21,35 @@ const options = {
 app.use(express.json());
 app.use(
   cors({
-    origin:"https://signin-reset.netlify.app",
+    origin:"https://signin-reset.netlify.app"
   })
 );
 
 // Register
 app.post("/register", async (req, res) => {
-  try {
-    const connection = await mongoclient.connect(URL);
-    const db = connection.db("registrations");
-    const collection = db.collection("datas");
-
-    const salt1 = await bcrypt.genSalt(10);
-    const hash1 = await bcrypt.hash(req.body.password, salt1);
-    req.body.password = hash1;
-
-    const salt2 = await bcrypt.genSalt(10);
-    const hash2 = await bcrypt.hash(req.body.confirm_password, salt2);
-    req.body.confirm_password = hash2;
-
-    const users = await collection.insertOne(req.body);
-    await connection.close();
-
-    res.json(users);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "something went wrong" });
-  }
+    try {
+      const connection = await mongoclient.connect(URL);
+      const db = connection.db("registrations");
+      const collection = db.collection("datas");
+      const userexist = await collection.findOne({ email: req.body.email });
+      if (userexist) {
+      res.status(201).json({ message: "exist" });
+    } else {
+      const salt1 = await bcrypt.genSalt(10);
+      const hash1 = await bcrypt.hash(req.body.password, salt1);
+      req.body.password = hash1;
+      const salt2 = await bcrypt.genSalt(10);
+      const hash2 = await bcrypt.hash(req.body.confirm_password, salt2);
+      req.body.confirm_password = hash2;
+      await collection.insertOne(req.body);
+      await connection.close();
+      res.status(201).json({ message:"register success" });
+    }
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({ message: "something went wrong" });
+    }
+  
 });
 
 // Login
@@ -57,21 +59,19 @@ app.post("/login", async (req, res) => {
     const db = connection.db("registrations");
     const collection = db.collection("datas");
     const user = await collection.findOne({ email: req.body.email });
-    console.log(user);
     if (user == null) {
       res.status(200).json({ message: "User not found", token });
     } else if (user) {
       const compare = await bcrypt.compare(req.body.password, user.password);
       if (compare) {
         const token = jwt.sign({ id: user._id }, SECURT);
-        res.json({ message: "Login success" });
+        res.json({ message: "Login Success" });
       } else {
-        res.status(200).json({ message: "email/password wrong", token });
+        res.status(200).json({ message: "Email / Password Is Wrong", token });
       }
     } else {
       res.json({ message: "Email / Password Is Wrong" });
     }
-
     await connection.close();
   } catch (error) {
     console.log(error);
@@ -118,7 +118,9 @@ app.post("/sendpasswordlink", async (req, res) => {
           if (error) {
             res.status(401).json({ status: 401, message: "email not send" });
           } else {
-            res.status(201).json({ status: 201, message: "Email sent Succsfully" });
+            res
+              .status(201)
+              .json({ status: 201, message: "Email sent Succsfully" });
           }
         });
       }
